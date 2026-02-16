@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Campfire Skill Tree (Realtime)
 
-## Getting Started
+Next.js + Convex app for a keyboard-first admin dashboard and public realtime leaderboard, with Google Sheets as the canonical source of truth.
 
-First, run the development server:
+## Features
+
+- Public leaderboard at `/leaderboard`
+- Admin spreadsheet-style editor at `/admin`
+- Shared-passcode admin auth with signed HttpOnly cookie
+- Google Sheets canonical data model with Convex realtime cache
+- Sync pipeline:
+  - Google Sheet edits -> Apps Script webhook -> Convex poll/merge
+  - Fallback poll every 10s
+  - Dashboard edits -> Convex optimistic update + queued writeback to Sheets
+
+## Required Environment Variables
+
+Copy `.env.example` to `.env.local` and set:
+
+- `GOOGLE_SPREADSHEET_ID`
+- `GOOGLE_SERVICE_ACCOUNT_JSON` or `GOOGLE_SERVICE_ACCOUNT_FILE`
+- `SHEET_WEBHOOK_SECRET`
+- `ADMIN_PASSCODE`
+- `ADMIN_COOKIE_SECRET`
+- `CONVEX_DEPLOYMENT`
+- `NEXT_PUBLIC_CONVEX_URL`
+
+## Google Service Account
+
+Share your Google Sheet with this service account as **Editor**:
+
+- `skill-tree-leaderboard@hack-sv.iam.gserviceaccount.com`
+
+Never commit service-account JSON keys. `service-accounts/*.json` is gitignored.
+
+## Commands
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
 pnpm dev
-# or
-bun dev
+pnpm lint
+pnpm convex:dev
+pnpm convex:deploy
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Google Sheets Schema
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The app expects these tabs (and can initialize/repair headers from the admin dashboard button):
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `Skills`: `SkillID`, `SkillName`, `Category`, `XP`, `Active`, `UpdatedAt`
+- `Attendees`: `AttendeeID`, `FullName`, `Active`, `UpdatedAt`
+- `Completions`: `CompletionID`, `Timestamp`, `AttendeeID`, `SkillID`, `SkillXP`, `WildcardXP`, `TotalXP`, `UpdatedAt`, `Source`
 
-## Learn More
+Metadata columns are hidden by schema setup.
 
-To learn more about Next.js, take a look at the following resources:
+## Apps Script Webhook
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Use `docs/apps-script-webhook.gs` as the sheet-side webhook trigger script.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Keyboard Shortcuts (macOS-first)
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `Arrow keys`: navigate
+- `Tab / Shift+Tab`: move horizontally
+- `Enter / Shift+Enter`: commit and move vertically
+- `Esc`: cancel edit
+- `⌘C / Ctrl+C`: copy
+- `⌘V / Ctrl+V`: paste
+- `⌘D / Ctrl+D`: fill down
+- `⌘S / Ctrl+S`: force queue flush + sheet sync
+- `?`: toggle keymap overlay

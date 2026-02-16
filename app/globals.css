@@ -1,26 +1,392 @@
 @import "tailwindcss";
+@import "react-data-grid/lib/styles.css";
+
+@font-face {
+  font-family: "DREAM PLANNER";
+  src: url("/fonts/dreamplanner.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Ember & Fire";
+  src: url("/fonts/ember-and-fire.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #45b4f4;
+  --bg-soft: #82cdfa;
+  --surface: #f9e2ca;
+  --surface-border: #d5a16c;
+  --ink: #1a202c;
+  --ink-muted: #334155;
+  --success: #065f46;
+  --danger: #991b1b;
+  --admin-surface: #f8fafc;
+  --admin-border: #cbd5e1;
+  --sky-deep: #2f9fe0;
+  --sky-warm: #7fd1fc;
+  --paper: #fff7ea;
+  --paper-border: #d8a474;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  color: var(--ink);
+  background: radial-gradient(circle at top right, #66c6fa 0%, var(--bg) 45%, #2a9de4 100%);
+  font-family: "National Park", "PT Sans", system-ui, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.landing-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+}
+
+.campfire-hero {
+  width: min(860px, 100%);
+  padding: 2rem;
+  border-radius: 24px;
+  border: 4px solid var(--surface-border);
+  background: linear-gradient(180deg, #fdecd8 0%, var(--surface) 100%);
+  box-shadow: 0 24px 50px rgb(0 0 0 / 0.24);
+  text-align: center;
+  display: grid;
+  gap: 1rem;
+}
+
+.hero-flag {
+  width: 170px;
+  justify-self: center;
+}
+
+.hero-title {
+  margin: 0;
+  font-family: "DREAM PLANNER", fantasy;
+  letter-spacing: 0.03em;
+  color: #fffaf2;
+  text-shadow: 4px 4px 0 rgb(0 0 0 / 0.24);
+  font-size: clamp(3rem, 9vw, 6.5rem);
+}
+
+.hero-subtitle {
+  margin: 0;
+  font-family: "Ember & Fire", sans-serif;
+  font-size: clamp(1.1rem, 3vw, 2rem);
+  color: #854d16;
+}
+
+.hero-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.primary-btn,
+.secondary-btn,
+.ghost-btn {
+  border-radius: 14px;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+
+.primary-btn {
+  background: #0f766e;
+  color: white;
+}
+
+.secondary-btn {
+  background: #f1f5f9;
+  border-color: #64748b;
+}
+
+.ghost-btn {
+  background: transparent;
+  border-color: #64748b;
+  color: #334155;
+}
+
+.page-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 88% 8%, rgb(255 255 255 / 0.42) 0%, transparent 38%),
+    radial-gradient(circle at 6% 30%, rgb(255 255 255 / 0.34) 0%, transparent 30%),
+    linear-gradient(180deg, var(--sky-warm) 0%, var(--bg) 48%, var(--sky-deep) 100%);
+}
+
+.page-shell::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 88px;
+  background: center/cover no-repeat url("/campfire/vines.webp");
+  opacity: 0.68;
+  pointer-events: none;
+}
+
+.leaderboard-top {
+  width: min(1060px, calc(100% - 2rem));
+  margin: 1rem auto 0.35rem;
+  position: relative;
+  z-index: 2;
+}
+
+.leaderboard-top-card {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.9rem 1rem;
+  border-radius: 18px;
+  border: 3px solid #d5a16c;
+  background: linear-gradient(180deg, #fdeed8 0%, #f9e2ca 100%);
+  box-shadow: -6px 10px 0 rgb(0 0 0 / 0.18);
+}
+
+.leaderboard-flag {
+  width: 160px;
+  height: auto;
+  filter: drop-shadow(2px 3px 0 rgb(0 0 0 / 0.22));
+}
+
+.top-kicker {
+  margin: 0;
+  color: #9a3412;
+  font-family: "Ember & Fire", sans-serif;
+  font-size: clamp(1.1rem, 2.3vw, 1.4rem);
+}
+
+.top-title {
+  margin: -0.08em 0 0;
+  line-height: 1;
+  color: #fef9f2;
+  font-family: "DREAM PLANNER", fantasy;
+  font-size: clamp(2.3rem, 6vw, 3.8rem);
+  text-shadow: 4px 4px 0 rgb(0 0 0 / 0.24);
+}
+
+.top-subtitle {
+  margin: 0.2rem 0 0;
+  color: #854d16;
+  font-weight: 700;
+  font-family: "Ember & Fire", sans-serif;
+  font-size: clamp(0.95rem, 2vw, 1.2rem);
+}
+
+.leaderboard-shell {
+  width: min(1000px, calc(100% - 2rem));
+  margin: 0.75rem auto 2.25rem;
+  border-radius: 22px;
+  border: 3px solid var(--paper-border);
+  background: linear-gradient(180deg, #fffaf2 0%, var(--paper) 100%);
+  box-shadow: 0 20px 36px rgb(0 0 0 / 0.2);
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+}
+
+.leaderboard-controls {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: 1rem;
+  border-bottom: 1px solid #e6c39f;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.6), rgb(255 255 255 / 0));
+}
+
+.text-input {
+  width: min(360px, 100%);
+  border: 2px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.95rem;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  padding: 0.7rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #efd7bc;
+}
+
+.leaderboard-table th {
+  font-size: 0.8rem;
+  color: #7c2d12;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.rank-pill {
+  background: #f59e0b;
+  color: white;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.2rem 0.5rem;
+}
+
+.admin-shell {
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-page-shell {
+  min-height: 100vh;
+  background: #e2e8f0;
+}
+
+.status-banner {
+  background: #f8fafc;
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  padding: 0.85rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.status-good {
+  color: var(--success);
+  font-weight: 700;
+}
+
+.status-bad {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.admin-card {
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+  background: var(--admin-surface);
+  padding: 0.75rem;
+}
+
+.tab-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.65rem;
+}
+
+.tab-btn {
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  background: white;
+  padding: 0.45rem 0.7rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.tab-btn.active {
+  background: #e2e8f0;
+}
+
+.grid-wrap {
+  min-height: 460px;
+  max-height: 70vh;
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.small-muted {
+  color: var(--ink-muted);
+  font-size: 0.8rem;
+}
+
+.kbd {
+  display: inline-block;
+  border: 1px solid #94a3b8;
+  border-radius: 6px;
+  padding: 0.05rem 0.4rem;
+  font-size: 0.78rem;
+  background: white;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(15 23 42 / 0.6);
+  display: grid;
+  place-items: center;
+  z-index: 50;
+}
+
+.overlay-card {
+  width: min(560px, calc(100% - 2rem));
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 20px 48px rgb(0 0 0 / 0.3);
+}
+
+.login-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.login-card {
+  width: min(460px, 100%);
+  border-radius: 16px;
+  border: 3px solid var(--surface-border);
+  background: var(--surface);
+  padding: 1.25rem;
+  display: grid;
+  gap: 0.75rem;
+  box-shadow: 0 18px 34px rgb(0 0 0 / 0.26);
+}
+
+@media (max-width: 800px) {
+  .leaderboard-shell {
+    width: calc(100% - 1rem);
+  }
+
+  .leaderboard-top {
+    width: calc(100% - 1rem);
+  }
+
+  .leaderboard-top-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    box-shadow: -4px 7px 0 rgb(0 0 0 / 0.16);
+  }
+
+  .leaderboard-flag {
+    width: 140px;
+  }
 }
