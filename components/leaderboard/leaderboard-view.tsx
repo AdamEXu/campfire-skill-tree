@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
@@ -23,6 +23,16 @@ const PACIFIC_FORMATTER = new Intl.DateTimeFormat("en-US", {
   timeZoneName: "short",
 });
 
+const PACIFIC_TIME_WITH_SECONDS_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/Los_Angeles",
+  hour: "numeric",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: true,
+});
+
+const POLL_INTERVAL_SECONDS = 10;
+
 function formatWhen(timestamp: string | null): string {
   if (!timestamp) return "-";
   const parsed = Date.parse(timestamp);
@@ -30,9 +40,28 @@ function formatWhen(timestamp: string | null): string {
   return PACIFIC_FORMATTER.format(new Date(parsed));
 }
 
+function formatLastPollTime(timestamp: string | null): string {
+  if (!timestamp) return "-";
+  const parsed = Date.parse(timestamp);
+  if (Number.isNaN(parsed)) return timestamp;
+  return PACIFIC_TIME_WITH_SECONDS_FORMATTER.format(new Date(parsed));
+}
+
+function getNextPollCountdown(lastPollAt: string | null, nowMs: number): number | null {
+  if (!lastPollAt) return null;
+  const lastPollMs = Date.parse(lastPollAt);
+  if (Number.isNaN(lastPollMs)) return null;
+
+  const nextPollMs = lastPollMs + POLL_INTERVAL_SECONDS * 1000;
+  const remainingMs = nextPollMs - nowMs;
+  if (remainingMs <= 0) return 0;
+  return Math.ceil(remainingMs / 1000);
+}
+
 export function LeaderboardView() {
   const [search, setSearch] = useState("");
   const [limit, setLimit] = useState(50);
+  const [nowMs, setNowMs] = useState(() => Date.now());
 
   const entries = useQuery(api.leaderboard.getLeaderboard, {
     search,
@@ -41,7 +70,26 @@ export function LeaderboardView() {
 
   const status = useQuery(api.sync.getPublicSyncStatus, {});
 
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setNowMs(Date.now());
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, []);
+
   const sortedEntries = useMemo<LeaderboardRow[]>(() => (entries ?? []) as LeaderboardRow[], [entries]);
+  const nextPollCountdown = useMemo(
+    () => getNextPollCountdown(status?.lastPollAt ?? null, nowMs),
+    [status?.lastPollAt, nowMs],
+  );
+
+  const nextPollText =
+    nextPollCountdown === null
+      ? "Next poll in -"
+      : nextPollCountdown === 0
+      ? "Polling..."
+      : `Next poll in ${nextPollCountdown} ${nextPollCountdown === 1 ? "second" : "seconds"}...`;
 
   return (
     <div className="leaderboard-shell">
@@ -49,7 +97,7 @@ export function LeaderboardView() {
         <div>
           <strong>Live leaderboard</strong>
           <div className="small-muted">
-            Last poll: {formatWhen(status?.lastPollAt ?? null)} | Last webhook: {formatWhen(status?.lastWebhookAt ?? null)}
+            Last poll: {formatLastPollTime(status?.lastPollAt ?? null)} | {nextPollText}
           </div>
         </div>
         <input
