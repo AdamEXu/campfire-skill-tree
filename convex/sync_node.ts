@@ -98,7 +98,7 @@ export const pollCron = internalAction({
   args: {},
   handler: async (ctx) => {
     await ctx.runAction(internal.sync_node.pollSheetsAndMerge, {
-      reason: "cron-10s",
+      reason: "cron-30s",
     });
   },
 });

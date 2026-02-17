@@ -10,7 +10,7 @@ Next.js + Convex app for a keyboard-first admin dashboard and public realtime le
 - Google Sheets canonical data model with Convex realtime cache
 - Sync pipeline:
   - Google Sheet edits -> Apps Script webhook -> Convex poll/merge
-  - Fallback poll every 10s
+  - Fallback poll every 30s
   - Dashboard edits -> Convex optimistic update + queued writeback to Sheets
 
 ## Required Environment Variables

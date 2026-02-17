@@ -20,7 +20,7 @@ Flow:
 
 1. Sheet edits -> Apps Script webhook -> Convex -> website updates.
 2. Admin edits in website -> Convex -> writes back to Sheet.
-3. Convex also polls Sheet every 10s as a fallback.
+3. Convex also polls Sheet every 30s as a fallback.
 
 ## 2. Accounts and Tools You Need
 

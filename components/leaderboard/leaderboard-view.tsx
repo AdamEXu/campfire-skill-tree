@@ -31,7 +31,7 @@ const PACIFIC_TIME_WITH_SECONDS_FORMATTER = new Intl.DateTimeFormat("en-US", {
   hour12: true,
 });
 
-const POLL_INTERVAL_SECONDS = 10;
+const POLL_INTERVAL_SECONDS = 30;
 
 function formatWhen(timestamp: string | null): string {
   if (!timestamp) return "-";
