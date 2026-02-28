@@ -9,7 +9,7 @@ export function PublicLeaderboardShell() {
             <p className="top-kicker">Campfire San Jose</p>
             <h1 className="top-title">Skill Tree Leaderboard</h1>
             <p className="top-subtitle">
-              Live updating XP leaderboard for Campfire San Jose.
+              Wi-Fi: <strong>Cadence Guest</strong> &nbsp;|&nbsp; Username: <strong>CDNS_Event</strong> &nbsp;|&nbsp; Password: <strong>2655_Events</strong>
             </p>
           </div>
         </div>

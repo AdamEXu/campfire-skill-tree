@@ -369,7 +369,11 @@ export async function pullSheetSnapshot(): Promise<{
     const second = (row[1] ?? "").trim();
     const third = (row[2] ?? "").trim();
 
-    if (first.toLowerCase() === "completionid" || second.toLowerCase() === "column 2") {
+    if (
+      first.toLowerCase() === "completionid" ||
+      first.toLowerCase() === "timestamp" ||
+      second.toLowerCase() === "column 2"
+    ) {
       continue;
     }
 
