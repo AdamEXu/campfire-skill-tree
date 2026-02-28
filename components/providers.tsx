@@ -5,10 +5,15 @@ import { useMemo } from "react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+  const hasConfiguredConvex = Boolean(convexUrl);
   const client = useMemo(() => {
     const fallback = "https://placeholder.convex.cloud";
     return new ConvexReactClient(convexUrl ?? fallback);
   }, [convexUrl]);
 
-  return <ConvexProvider client={client}>{children}</ConvexProvider>;
+  return (
+    <ConvexProvider client={client}>
+      {children}
+    </ConvexProvider>
+  );
 }

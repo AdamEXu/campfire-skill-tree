@@ -93,12 +93,3 @@ export const ensureCanonicalSheetSchema = internalAction({
     }
   },
 });
-
-export const pollCron = internalAction({
-  args: {},
-  handler: async (ctx) => {
-    await ctx.runAction(internal.sync_node.pollSheetsAndMerge, {
-      reason: "cron-30s",
-    });
-  },
-});

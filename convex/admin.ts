@@ -6,9 +6,17 @@ import { shouldApplyIncomingUpdate } from "./lib/conflict";
 
 type Source = "sheet" | "dashboard";
 const internalAny = internal as any;
+const ACTIVE_CLIENT_WINDOW_MS = 90_000;
 
 function nowIso(): string {
   return new Date().toISOString();
+}
+
+function hasRecentActivity(timestamp: string | null, windowMs = ACTIVE_CLIENT_WINDOW_MS): boolean {
+  if (!timestamp) return false;
+  const parsed = Date.parse(timestamp);
+  if (Number.isNaN(parsed)) return false;
+  return Date.now() - parsed <= windowMs;
 }
 
 function parseBoolean(value: boolean | string): boolean {
@@ -221,6 +229,7 @@ export const getSyncDiagnostics = query({
     const failedWrites = pendingWrites.filter((row) => row.attempts >= 3).length;
 
     const errors = await ctx.db.query("sync_errors").order("desc").take(10);
+    const lastClientActivityAt = stateByKey.get("lastClientActivityAt") ?? null;
 
     return {
       pendingWrites: pendingWrites.length,
@@ -228,6 +237,8 @@ export const getSyncDiagnostics = query({
       lastPollAt: stateByKey.get("lastPollAt") ?? null,
       lastWebhookAt: stateByKey.get("lastWebhookAt") ?? null,
       lastSuccessfulWriteAt: stateByKey.get("lastSuccessfulWriteAt") ?? null,
+      lastClientActivityAt,
+      hasActiveClients: hasRecentActivity(lastClientActivityAt),
       queueDepth: pendingWrites.length,
       recentErrors: errors,
     };
@@ -481,5 +492,7 @@ export const markSheetWriteFailure = internalMutation({
       context: { queueId: String(args.id) },
       createdAt: nowIso(),
     });
+
+    await ctx.scheduler.runAfter(delayMs, internalAny.admin_node.processSheetWriteQueue, {});
   },
 });

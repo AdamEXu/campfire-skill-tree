@@ -12,7 +12,10 @@ import {
   type SkillSheetRow,
 } from "./lib/sheets";
 
-async function flushSheetWriteQueue(ctx: any, limit = 25): Promise<number> {
+const DEFAULT_FLUSH_LIMIT = 25;
+const internalAny = internal as any;
+
+async function flushSheetWriteQueue(ctx: any, limit = DEFAULT_FLUSH_LIMIT): Promise<number> {
   const queueItems: Array<{
     _id: string;
     entityType: "skill" | "attendee" | "completion";
@@ -53,15 +56,14 @@ async function flushSheetWriteQueue(ctx: any, limit = 25): Promise<number> {
 
 export const processSheetWriteQueue: any = internalAction({
   args: {},
-  handler: async (ctx: any): Promise<{ processed: number }> => {
-    const processed = await flushSheetWriteQueue(ctx);
-    return { processed };
-  },
-});
+  handler: async (ctx: any): Promise<{ processed: number; rescheduled: boolean }> => {
+    const processed = await flushSheetWriteQueue(ctx, DEFAULT_FLUSH_LIMIT);
+    const rescheduled = processed >= DEFAULT_FLUSH_LIMIT;
 
-export const queueFlushCron: any = internalAction({
-  args: {},
-  handler: async (ctx: any): Promise<void> => {
-    await flushSheetWriteQueue(ctx);
+    if (rescheduled) {
+      await ctx.scheduler.runAfter(0, internalAny.admin_node.processSheetWriteQueue, {});
+    }
+
+    return { processed, rescheduled };
   },
 });

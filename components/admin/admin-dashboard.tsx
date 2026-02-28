@@ -101,6 +101,17 @@ export function AdminDashboard() {
   const attendees = useQuery(api.admin.listAttendees, {});
   const completions = useQuery(api.admin.listCompletions, { limit: 500 });
   const diagnostics = useQuery(api.admin.getSyncDiagnostics, {});
+  const diagnosticsView = diagnostics as
+    | {
+        pendingWrites?: number;
+        failedWrites?: number;
+        lastPollAt?: string | null;
+        lastWebhookAt?: string | null;
+        lastSuccessfulWriteAt?: string | null;
+        hasActiveClients?: boolean;
+        lastClientActivityAt?: string | null;
+      }
+    | undefined;
 
   const upsertSkill = useMutation(api.admin.upsertSkill);
   const upsertAttendee = useMutation(api.admin.upsertAttendee);
@@ -360,13 +371,17 @@ export function AdminDashboard() {
   return (
     <section className="admin-shell">
       <div className="status-banner">
-        <span className={diagnostics?.pendingWrites ? "status-bad" : "status-good"}>
-          Pending writes: {diagnostics?.pendingWrites ?? 0}
+        <span className={diagnosticsView?.pendingWrites ? "status-bad" : "status-good"}>
+          Pending writes: {diagnosticsView?.pendingWrites ?? 0}
         </span>
-        <span>Failed writes: {diagnostics?.failedWrites ?? 0}</span>
-        <span>Last poll: {formatPacificTimestamp(diagnostics?.lastPollAt)}</span>
-        <span>Last webhook: {formatPacificTimestamp(diagnostics?.lastWebhookAt)}</span>
-        <span>Last queue flush: {formatPacificTimestamp(diagnostics?.lastSuccessfulWriteAt)}</span>
+        <span>Failed writes: {diagnosticsView?.failedWrites ?? 0}</span>
+        <span className={diagnosticsView?.hasActiveClients ? "status-good" : "status-bad"}>
+          Polling: {diagnosticsView?.hasActiveClients ? "active" : "paused"}
+        </span>
+        <span>Last poll: {formatPacificTimestamp(diagnosticsView?.lastPollAt)}</span>
+        <span>Last client activity: {formatPacificTimestamp(diagnosticsView?.lastClientActivityAt)}</span>
+        <span>Last webhook: {formatPacificTimestamp(diagnosticsView?.lastWebhookAt)}</span>
+        <span>Last queue flush: {formatPacificTimestamp(diagnosticsView?.lastSuccessfulWriteAt)}</span>
       </div>
 
       <div className="admin-card" style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap" }}>
