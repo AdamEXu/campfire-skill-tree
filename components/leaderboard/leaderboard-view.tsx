@@ -31,7 +31,7 @@ const PACIFIC_TIME_WITH_SECONDS_FORMATTER = new Intl.DateTimeFormat("en-US", {
   hour12: true,
 });
 
-const POLL_INTERVAL_SECONDS = 60;
+const POLL_INTERVAL_SECONDS = 2_629_746;
 
 function formatWhen(timestamp: string | null): string {
   if (!timestamp) return "-";
@@ -89,7 +89,7 @@ export function LeaderboardView() {
       ? "Next poll in -"
       : nextPollCountdown === 0
       ? "Polling..."
-      : `Next poll in ${nextPollCountdown} ${nextPollCountdown === 1 ? "second" : "seconds"}...`;
+      : `Next poll in ${nextPollCountdown} ${nextPollCountdown === 1 ? "second" : "seconds"}`;
 
   return (
     <div className="leaderboard-shell">
